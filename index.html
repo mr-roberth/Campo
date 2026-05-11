@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="stylesheet" href="./resources/ol.css">
+    <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+    <link rel="stylesheet" type="text/css" href="resources/horsey.min.css">
+    <link rel="stylesheet" type="text/css" href="resources/ol3-search-layer.min.css">
+    <link href="resources/ol-geocoder.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+    <link rel="stylesheet" href="./resources/qgis2web.css">
+
+    <title>Mapa de clasificación de superficies - Ingenio San Pedro</title>
+
+    <style>
+
+    html, body {
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* =============================== */
+    /* BARRA SUPERIOR */
+    /* =============================== */
+
+    .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 62px;
+        background: #000000;
+        display: flex;
+        align-items: center;
+        padding: 0 18px;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.20);
+    }
+
+    .topbar-content {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .topbar-logo {
+        height: 36px;
+        width: auto;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+    }
+
+    .topbar-title {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        letter-spacing: 0.2px;
+    }
+
+    /* =============================== */
+    /* MAPA */
+    /* =============================== */
+
+    #map {
+        position: absolute;
+        top: 62px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 62px);
+    }
+
+    /* =============================== */
+    /* ESTILOS ORIGINALES */
+    /* =============================== */
+
+    .ol-control > * {
+        background-color: #f8f8f8!important;
+        color: #444444!important;
+        border-radius: 0px;
+    }
+
+    .ol-attribution a,
+    .gcd-gl-input::placeholder,
+    .search-layer-input-search::placeholder {
+        color: #444444!important;
+    }
+
+    .search-layer-input-search {
+        background-color: #f8f8f8!important;
+    }
+
+    .ol-control > *:focus,
+    .ol-control >*:hover {
+        background-color: rgba(248, 248, 248, 0.7)!important;
+    }
+
+    .ol-control {
+        background-color: rgba(255,255,255,.4) !important;
+        padding: 2px !important;
+    }
+
+    /* =============================== */
+    /* FORMATO POPUP */
+    /* =============================== */
+
+    .ol-popup {
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+        min-width: 280px;
+    }
+
+    .popup-header {
+        background: #111111;
+        color: white;
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .popup-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        background: white;
+    }
+
+    .popup-table tr:nth-child(even) {
+        background: #f8f8f8;
+    }
+
+    .popup-table td {
+        padding: 7px 10px;
+        border-bottom: 1px solid #ececec;
+        vertical-align: top;
+    }
+
+    .popup-table td:first-child {
+        font-weight: bold;
+        width: 40%;
+        color: #222;
+        background: #fafafa;
+    }
+
+    .popup-table td:last-child {
+        color: #555;
+        word-break: break-word;
+    }
+
+    @media (max-width: 768px) {
+
+        .topbar {
+            height: 56px;
+            padding: 0 12px;
+        }
+
+        .topbar-logo {
+            height: 28px;
+        }
+
+        .topbar-title {
+            font-size: 15px;
+        }
+
+        #map {
+            top: 56px;
+            height: calc(100% - 56px);
+        }
+
+    }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <div class="topbar">
+        <div class="topbar-content">
+
+            <img
+                src="https://www.gporres.com.mx/viaticos_s4/dist/img/logo-login.png"
+                alt="Logo"
+                class="topbar-logo"
+            >
+
+            <div class="topbar-title">
+                Mapa de clasificación de superficies - Ingenio San Pedro
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MAPA -->
+    <div id="map">
+        <div id="popup" class="ol-popup">
+            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <div id="popup-content"></div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="resources/qgis2web_expressions.js"></script>
+    <script src="./resources/functions.js"></script>
+    <script src="./resources/ol.js"></script>
+    <script src="resources/horsey.min.js"></script>
+    <script src="resources/ol3-search-layer.js"></script>
+    <script src="./resources/ol-layerswitcher.js"></script>
+    <script src="resources/ol-geocoder.js"></script>
+
+    <script src="layers/Productores_1.js"></script>
+    <script src="layers/Propios_2.js"></script>
+    <script src="layers/Clase1_3.js"></script>
+    <script src="layers/ClasificacinPropias_4.js"></script>
+
+    <script src="styles/Productores_1_style.js"></script>
+    <script src="styles/Propios_2_style.js"></script>
+    <script src="styles/Clase1_3_style.js"></script>
+    <script src="styles/ClasificacinPropias_4_style.js"></script>
+
+    <script src="./layers/layers.js" type="text/javascript"></script>
+    <script src="./resources/Autolinker.min.js"></script>
+    <script src="./resources/qgis2web.js"></script>
+
+    <!-- FORMATO AUTOMÁTICO POPUPS -->
+    <script>
+
+    function formatPopupTable() {
+
+        const popupContent = document.getElementById('popup-content');
+
+        if (!popupContent) return;
+
+        const table = popupContent.querySelector('table');
+
+        if (!table || table.dataset.formatted) return;
+
+        table.dataset.formatted = "true";
+        table.classList.add('popup-table');
+
+        const wrapper = document.createElement('div');
+
+        wrapper.innerHTML = `
+            <div class="popup-header">
+                Información del polígono
+            </div>
+        `;
+
+        wrapper.appendChild(table.cloneNode(true));
+
+        popupContent.innerHTML = '';
+        popupContent.appendChild(wrapper);
+    }
+
+    setInterval(formatPopupTable, 700);
+
+    </script>
+
+</body>
+</html>
